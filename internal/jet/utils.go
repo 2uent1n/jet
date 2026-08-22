@@ -2,11 +2,23 @@ package jet
 
 import (
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/go-jet/jet/v2/internal/utils/dbidentifier"
 	"github.com/go-jet/jet/v2/internal/utils/must"
 )
+
+var defaultDialect = NewDialect(DialectParams{
+	AliasQuoteChar:      '"',
+	IdentifierQuoteChar: '"',
+	ArgumentPlaceholder: func(ord int) string {
+		return "$" + strconv.Itoa(ord)
+	},
+	ArgumentToString: func(value any) (string, bool) {
+		return "", false
+	},
+})
 
 // SerializeClauseList func
 func SerializeClauseList(statement StatementType, clauses []Serializer, out *SQLBuilder) {
