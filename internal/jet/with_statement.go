@@ -58,11 +58,23 @@ func (w withImpl) projections() ProjectionList {
 	return ProjectionList{}
 }
 
+// CTEMaterialization is the materialization of a common table expression.
+type CTEMaterialization int
+
+const (
+	// CTEMaterializationDefault leaves materialization to the database.
+	CTEMaterializationDefault CTEMaterialization = iota
+	// CTEMaterializationForced forces materialization (MATERIALIZED).
+	CTEMaterializationForced
+	// CTEMaterializationDisabled disables materialization (NOT MATERIALIZED).
+	CTEMaterializationDisabled
+)
+
 // CommonTableExpression contains information about a CTE.
 type CommonTableExpression struct {
 	selectTableImpl
 
-	NotMaterialized bool
+	Materialization CTEMaterialization
 	Columns         []ColumnExpression
 }
 
@@ -90,8 +102,11 @@ func (c CommonTableExpression) serialize(statement StatementType, out *SQLBuilde
 		}
 		out.WriteString("AS")
 
-		if c.NotMaterialized {
-			out.WriteString("NOT MATERIALIZED")
+		switch c.Materialization {
+		case CTEMaterializationForced:
+			out.WriteString(" MATERIALIZED")
+		case CTEMaterializationDisabled:
+			out.WriteString(" NOT MATERIALIZED")
 		}
 
 		if c.Statement == nil {

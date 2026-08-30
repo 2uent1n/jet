@@ -49,7 +49,7 @@ func (c *commonTableExpression) AS(statement jet.SerializerHasProjections) Commo
 
 // AS_NOT_MATERIALIZED is used to define not materialized CTE query
 func (c *commonTableExpression) AS_NOT_MATERIALIZED(statement jet.SerializerHasProjections) CommonTableExpression {
-	c.CommonTableExpression.NotMaterialized = true
+	c.CommonTableExpression.Materialization = jet.CTEMaterializationDisabled
 	c.CommonTableExpression.Statement = statement
 	return c
 }
